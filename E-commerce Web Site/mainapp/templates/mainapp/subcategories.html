@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subcategory</title>
+</head>
+<body>
+    {% if subcategories %}
+        <h2>Search by subcategory:</h2>
+            {% for subcategory in subcategories %}
+                <a href="#"><h5>{{subcategory.name}}</h5></a>
+            {% endfor %}
+    {% endif %}
+    <h2>All Products: </h2>
+        {% if category.name == "PC" %}
+            {% for pc in PCs %}
+                <a href="#"><h4>{{pc.title}}</h4></a>
+            {% endfor %}
+        {% endif %}
+        {% if category.name == "Laptops" %}
+            {% for laptop in laptops %}
+                <a href="#"><h4>{{laptop.title}}</h4></a>
+            {% endfor %}
+        {% endif %}
+        {% if category.name == "Tablets" %}
+            {% for tablet in tablets %}
+                <a href="#"><h4>{{tablet.title}}</h4></a>
+            {% endfor %}
+        {% endif %}
+</body>
+</html>

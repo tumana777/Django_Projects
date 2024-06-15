@@ -4,6 +4,51 @@ from computers.forms import PCForm, LaptopForm, TabletForm, PartsOrAccessoriesFo
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from .models import MainCategory, Category, SubCategory
+from django.views.generic import ListView
+from computers.models import PC, Laptop, Tablet
+
+class MainCategoryListView(ListView):
+    model = MainCategory
+    template_name = "mainapp/maincategories.html"
+    context_object_name = "maincategories"
+
+class CategoryListView(ListView):
+    model = Category
+    template_name = "mainapp/categories.html"
+    context_object_name = "categories"
+
+    def get_queryset(self):
+        maincategory_name = self.kwargs['maincategory_name']
+        maincategory = get_object_or_404(MainCategory, name=maincategory_name)
+        return Category.objects.filter(maincategory=maincategory)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['maincategory'] = get_object_or_404(MainCategory, name=self.kwargs['maincategory_name'])
+        context['PCs'] = PC.objects.all()
+        context['laptops'] = Laptop.objects.all()
+        context['tablets'] = Tablet.objects.all()
+        return context
+
+class SubCategoryListView(ListView):
+    model = SubCategory
+    template_name = "mainapp/subcategories.html"
+    context_object_name = "subcategories"
+
+    def get_queryset(self):
+        category_name = self.kwargs['category_name']
+        category = get_object_or_404(Category, name=category_name)
+        return SubCategory.objects.filter(category=category)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category'] = get_object_or_404(Category, name=self.kwargs['category_name'])
+        context['maincategory'] = get_object_or_404(MainCategory, name=self.kwargs['maincategory_name'])
+        context['PCs'] = PC.objects.all()
+        context['laptops'] = Laptop.objects.all()
+        context['tablets'] = Tablet.objects.all()
+        return context
+
 
 def fetch_categories(request):
     maincategory_id = request.GET.get('maincategory_id')
@@ -71,99 +116,53 @@ def load_form(request):
     form_html = ''
     form_type = ''
 
+    category_forms = {
+        'pc': (PCForm, 'pc'),
+        'laptops': (LaptopForm, 'laptop'),
+        'tablets': (TabletForm, 'tablet'),
+        'smartphones': (SmartphoneForm, 'smartphone')
+    }
+
+    subcategory_forms = {
+        'mouse': 'mouse',
+        'web camera': 'web camera',
+        'mouse pad': 'mouse pad',
+        'pc speakers': 'pc speakers',
+        'usb gadget': 'usb gadget',
+        'pc microphone': 'pc microphone',
+        'laptop cooler': 'laptop cooler',
+        'laptop holder': 'laptop holder',
+        'laptop case': 'laptop case',
+        'processor': 'processor',
+        'cooler': 'cooler',
+        'sound board': 'sound board',
+        'motherboard': 'motherboard',
+        'video card': 'video card',
+        'power supply': 'power supply',
+        'thermal paste': 'thermal paste',
+        'hdd': 'hdd',
+        'ssd': 'ssd',
+        'keyboard': 'keyboard',
+        'laptop battery': 'laptop battery'
+    }
+
     if category_id:
         try:
             category = Category.objects.get(id=category_id)
-            if category.name.lower() == 'pc':
-                form = PCForm()
-                form_type = 'pc'
-            elif category.name.lower() == 'laptops':
-                form = LaptopForm()
-                form_type = 'laptop'
-            elif category.name.lower() == 'tablets':
-                form = TabletForm()
-                form_type = 'tablet'
-            elif category.name.lower() == 'smartphones':
-                form = SmartphoneForm()
-                form_type = 'smartphone'
-            else:
-                form = None
-
-            if form:
-                form_html = render_to_string('mainapp/form_template.html', {'form': form, 'form_type': form_type}, request=request)
+            category_name = category.name.lower()
+            if category_name in category_forms:
+                form_class, form_type = category_forms[category_name]
+                form_html = render_to_string('mainapp/form_template.html', {'form': form_class(), 'form_type': form_type}, request=request)
         except Category.DoesNotExist:
             pass
 
     if subcategory_id:
         try:
             subcategory = SubCategory.objects.get(id=subcategory_id)
-            category = subcategory.category
-            
-            if subcategory.name.lower() == 'mouse':
-                form = PartsOrAccessoriesForm()
-                form_type = 'mouse'
-            elif subcategory.name.lower() == 'web camera':
-                form = PartsOrAccessoriesForm()
-                form_type = 'web camera'
-            elif subcategory.name.lower() == 'mouse pad':
-                form = PartsOrAccessoriesForm()
-                form_type = 'mouse pad'
-            elif subcategory.name.lower() == 'pc speakers':
-                form = PartsOrAccessoriesForm()
-                form_type = 'pc speakers'
-            elif subcategory.name.lower() == 'usb gadget':
-                form = PartsOrAccessoriesForm()
-                form_type = 'usb gadget'
-            elif subcategory.name.lower() == 'pc microphone':
-                form = PartsOrAccessoriesForm()
-                form_type = 'pc microphone'
-            elif subcategory.name.lower() == 'laptop cooler':
-                form = PartsOrAccessoriesForm()
-                form_type = 'laptop cooler'
-            elif subcategory.name.lower() == 'laptop holder':
-                form = PartsOrAccessoriesForm()
-                form_type = 'laptop holder'
-            elif subcategory.name.lower() == 'laptop case':
-                form = PartsOrAccessoriesForm()
-                form_type = 'laptop case'
-            elif subcategory.name.lower() == 'processor':
-                form = PartsOrAccessoriesForm()
-                form_type = 'processor'
-            elif subcategory.name.lower() == 'cooler':
-                form = PartsOrAccessoriesForm()
-                form_type = 'cooler'
-            elif subcategory.name.lower() == 'sound board':
-                form = PartsOrAccessoriesForm()
-                form_type = 'sound board'
-            elif subcategory.name.lower() == 'motherboard':
-                form = PartsOrAccessoriesForm()
-                form_type = 'motherboard'
-            elif subcategory.name.lower() == 'video card':
-                form = PartsOrAccessoriesForm()
-                form_type = 'video card'
-            elif subcategory.name.lower() == 'power supply':
-                form = PartsOrAccessoriesForm()
-                form_type = 'power supply'
-            elif subcategory.name.lower() == 'thermal paste':
-                form = PartsOrAccessoriesForm()
-                form_type = 'thermal paste'
-            elif subcategory.name.lower() == 'hdd':
-                form = PartsOrAccessoriesForm()
-                form_type = 'hdd'
-            elif subcategory.name.lower() == 'ssd':
-                form = PartsOrAccessoriesForm()
-                form_type = 'ssd'
-            elif subcategory.name.lower() == 'keyboard':
-                form = PartsOrAccessoriesForm()
-                form_type = 'keyboard'
-            elif subcategory.name.lower() == 'laptop battery':
-                form = PartsOrAccessoriesForm()
-                form_type = 'laptop battery'
-            else:
-                form = None
-
-            if form:
-                form_html = render_to_string('mainapp/form_template.html', {'form': form, 'form_type': form_type}, request=request)
+            subcategory_name = subcategory.name.lower()
+            if subcategory_name in subcategory_forms:
+                form_type = subcategory_forms[subcategory_name]
+                form_html = render_to_string('mainapp/form_template.html', {'form': PartsOrAccessoriesForm(), 'form_type': form_type}, request=request)
         except SubCategory.DoesNotExist:
             pass
 

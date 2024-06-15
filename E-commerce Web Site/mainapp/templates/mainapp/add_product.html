@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Product</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Add Product</h1>
+    
+    <label for="maincategory-select">Select Main Category:</label>
+    <select id="maincategory-select">
+        <option value="">Select a main category</option>
+        {% for maincategory in maincategories %}
+        <option value="{{ maincategory.id }}">{{ maincategory.name }}</option>
+        {% endfor %}
+    </select>
+
+    <br>
+
+    <label for="category-select" style="display:none;">Select Category:</label>
+    <select id="category-select" style="display:none;">
+        <option value="">Select a category</option>
+    </select>
+
+    <br>
+
+    <label for="subcategory-select" style="display:none;">Select Subcategory (if any):</label>
+    <select id="subcategory-select" style="display:none;">
+        <option value="">Select a subcategory</option>
+    </select>
+
+    <div id="form-container" style="display:none;">
+        <!-- The form will be loaded here based on the selected subcategory -->
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#maincategory-select').change(function() {
+                var maincategoryId = $(this).val();
+                $('#category-select').hide().html('<option value="">Select a category</option>');
+                $('#subcategory-select').hide().html('<option value="">Select a subcategory</option>');
+                $('#form-container').hide().empty();
+
+                if (maincategoryId) {
+                    $.ajax({
+                        url: '{% url "fetch_categories" %}',
+                        data: {
+                            'maincategory_id': maincategoryId
+                        },
+                        success: function(data) {
+                            $.each(data.categories, function(key, value) {
+                                $('#category-select').append('<option value="' + value.id + '">' + value.name + '</option>');
+                            });
+                            $('#category-select').show();
+                            $('label[for="category-select"]').show();
+                        }
+                    });
+                }
+            });
+
+            $('#category-select').change(function() {
+                var categoryId = $(this).val();
+                $('#subcategory-select').hide().html('<option value="">Select a subcategory</option>');
+                $('#form-container').hide().empty();
+
+                if (categoryId) {
+                    $.ajax({
+                        url: '{% url "fetch_subcategories" %}',
+                        data: {
+                            'category_id': categoryId
+                        },
+                        success: function(data) {
+                            if (data.subcategories.length > 0) {
+                                $.each(data.subcategories, function(key, value) {
+                                    $('#subcategory-select').append('<option value="' + value.id + '">' + value.name + '</option>');
+                                });
+                                $('#subcategory-select').show();
+                                $('label[for="subcategory-select"]').show();
+                            } else {
+                                $('#subcategory-select').hide();
+                                $('label[for="subcategory-select"]').hide();
+                                loadForm(categoryId, null);  // Directly load form if no subcategories
+                            }
+                        }
+                    });
+                }
+            });
+
+            $('#subcategory-select').change(function() {
+                var subcategoryId = $(this).val();
+                $('#form-container').hide().empty();
+
+                if (subcategoryId) {
+                    loadForm(null, subcategoryId);
+                }
+            });
+
+            function loadForm(categoryId, subcategoryId) {
+                var data = {};
+                if (categoryId) {
+                    data['category_id'] = categoryId;
+                }
+                if (subcategoryId) {
+                    data['subcategory_id'] = subcategoryId;
+                }
+
+                $.ajax({
+                    url: '{% url "load_form" %}',
+                    data: data,
+                    success: function(data) {
+                        $('#form-container').html(data.form_html).show();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

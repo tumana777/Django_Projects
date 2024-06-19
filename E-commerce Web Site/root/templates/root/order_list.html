@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-2">
+        <a style="text-decoration: none;" href=""><h5 class="mb-3">Purchases</h5></a>
+        <a style="text-decoration: none;" href=""><h5 class="mb-3">Watchlist</h5></a>
+        <a style="text-decoration: none;" href=""><h5 class="mb-3">Account</h5></a>
+    </div>
+    <div class="col-8">
+        <h5>My Orders</h5>
+        <hr>
+        {% for order in orders %}
+            <div class="order">
+                <div class="p-2 bg-secondary bg-opacity-10 border border-secondary rounded mb-2">
+                    <h5>Order date: {{ order.created_at }} • Order total: ${{ order.total_price }} • Order ID: {{ order.id }}</h5>
+                    {% for item in order.items.all %}
+                    <div class="card mb-3 mt-4" style="width: 100%">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="" class="img-fluid rounded-start" style="height: 150px;" alt="...">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ item.product.name }}</h5>
+                                    <p class="card-text">Price: ${{ item.price }}</p>
+                                    <p class="card-text">Qty: {{ item.quantity }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+                <hr>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

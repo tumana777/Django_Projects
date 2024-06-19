@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (IndexView, maincategory_product_list, 
                     product_list, product_detail, 
                     cart, cart_add, item_clear, item_increment, 
-                    item_decrement, cart_clear
+                    item_decrement, cart_clear, checkout, order_list
                     )
 
 urlpatterns = [
@@ -16,9 +16,6 @@ urlpatterns = [
     path('cart/item_increment/<int:id>/', item_increment, name='item_increment'),
     path('cart/item_decrement/<int:id>/', item_decrement, name='item_decrement'),
     path('cart/cart_clear/', cart_clear, name='cart_clear'),
-    # path('add_product/', add_product, name='add_product'),
-    # path('load_form/', load_form, name='load_form'),
-    # path('fetch_categories/', fetch_categories, name='fetch_categories'),
-    # path('fetch_subcategories/', fetch_subcategories, name='fetch_subcategories'),
-    # path('success/', success_page, name='success_page'),
+    path('checkout/', checkout, name='checkout'),
+    path('orders/', order_list, name='order_list'),
 ]

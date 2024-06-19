@@ -1,12 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from .models import MainCategory, Category, Product
+from .models import MainCategory, Category, Product, Order, OrderItem
 from django.views.generic import ListView
+from django.utils import timezone
 from cart.cart import Cart
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+from cart.models import CartItem
+from django.contrib import messages
 
 
 class IndexView(ListView):
@@ -45,7 +48,7 @@ def product_detail(request, maincategory_name, category_name, product_pk):
     }
     return render(request, "root/product_detail.html", context)
 
-login_required
+@login_required
 def cart(request):
     previous_url = request.META.get('HTTP_REFERER')
     go_back_url = previous_url if previous_url else reverse('index')
@@ -54,8 +57,11 @@ def cart(request):
 @login_required(login_url="/users/login")
 def cart_add(request, id):
     cart = Cart(request)
-    product = Product.objects.get(id=id)
-    cart.add(product=product)
+    product = get_object_or_404(Product, id=id)
+    if product.quantity > 0:
+        cart.add(product=product)
+    else:
+        messages.error(request, "This product is out of stock and cannot be added to the cart.")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
@@ -88,3 +94,34 @@ def cart_clear(request):
     cart = Cart(request)
     cart.clear()
     return redirect("cart_detail")
+
+@login_required
+def checkout(request):
+    user = request.user
+    cart = Cart(request)
+    cart_items = CartItem.objects.filter(user=user)
+    if not cart_items.exists():
+        return redirect('cart_detail')
+
+    total_price = sum(item.quantity * item.price for item in cart_items)
+
+    order = Order.objects.create(user=user, total_price=total_price, created_at=timezone.now())
+
+    for item in cart_items:
+        OrderItem.objects.create(
+            order=order,
+            product=item.product,
+            quantity=item.quantity,
+            price=item.price
+        )
+        item.product.quantity -= item.quantity
+        item.product.save()
+
+    cart.clear()
+
+    return redirect('order_list')
+
+@login_required
+def order_list(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'root/order_list.html', {'orders': orders})

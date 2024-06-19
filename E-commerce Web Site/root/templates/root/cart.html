@@ -3,7 +3,7 @@
 {% load static %}
 {% load cart_tag %}
 
-{% block title %} Cart {% endblock %}
+{% block title %}Cart{% endblock %}
 
 {% block body %}
 
@@ -23,7 +23,7 @@
                 <div class="cart-row">
                     <div style="flex:2"><img class="row-image" src="#"></div>
                     <div style="flex:2">
-                        <p>{{value.title}}</p>
+                        <p>{{value.name}}</p>
                     </div>
                     <div style="flex:1">
                         <p>${{value.price}}</p>
@@ -55,11 +55,12 @@
                         <h5>Total:<strong>${{ cart_total_amount }}</strong></h5>
                     </th>
                     <th>
-                        <a style="float:right; margin:5px;" class="btn btn-success" href="">Checkout</a>
+                        <a style="float:right; margin:5px;" class="btn btn-success" href="{% url 'checkout' %}">Checkout</a>
                     </th>
                 </tr>
             </table>
         </div>
     </div>
 </div>
+
 {% endblock %}

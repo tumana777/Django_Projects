@@ -4,4 +4,13 @@
     <h1>Product: {{product.name}}</h1>
     <h6>Quantity: {{product.quantity}}</h6>
     <a href="{% url 'cart_add' product.id %}">Add To Cart</a>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-danger" role="alert">
+            {{message}}
+          </div>
+        {% endfor %}
+    </div>
+{% endif %}
 {% endblock %}

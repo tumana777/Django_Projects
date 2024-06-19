@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load cart_tag %}
+
+{% block title %} Cart {% endblock %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <a class="btn btn-outline-dark mb-4" href="{{ go_back_url }}">&#x2190; Go Back</a>
+        <div class="box-element">
+            <div class="cart-row">
+                <div style="flex:2"></div>
+                <div style="flex:2"><strong>Item</strong></div>
+                <div style="flex:1"><strong>Price</strong></div>
+                <div style="flex:1"><strong>Quantity</strong></div>
+                <div style="flex:1"><strong>Total</strong></div>
+                <div style="flex:1"><strong>Remove</strong></div>
+            </div>
+            {% for key, value in request.session.cart.items %}
+                <div class="cart-row">
+                    <div style="flex:2"><img class="row-image" src="#"></div>
+                    <div style="flex:2">
+                        <p>{{value.title}}</p>
+                    </div>
+                    <div style="flex:1">
+                        <p>${{value.price}}</p>
+                    </div>
+                    <div style="flex:1" class="cart-quantity">
+                        <a href="{% url 'item_decrement' value.product_id %}">-</a>
+                        <strong>{{value.quantity}}</strong>
+                        <a href="{% url 'item_increment' value.product_id %}">+</a>
+                    </div>
+                    <div style="flex:1">
+                        <p>{{ value.price|multiply:value.quantity }}</p>
+                    </div>
+                    <div style="flex:1" class="d-flex align-items-center">
+                        <a style="text-decoration: none;" href="{% url 'item_clear' value.product_id %}">&#x274c</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <a href="{% url 'cart_clear' %}" class="btn btn-danger mt-4 mb-4">Clear The Cart</a>
+        <br>
+        <div class="box-element">
+            <br>
+            <table class="table">
+                <tr>
+                    <th>
+                        <h5>Items: <strong>{{request.session.cart|total_quantity}}</strong></h5>
+                    </th>
+                    <th>
+                        <h5>Total:<strong>${{ cart_total_amount }}</strong></h5>
+                    </th>
+                    <th>
+                        <a style="float:right; margin:5px;" class="btn btn-success" href="">Checkout</a>
+                    </th>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

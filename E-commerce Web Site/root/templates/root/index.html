@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %} Home Page {% endblock %}
+{% block body %}
+<div class="cat-toggle">
+    <button type="button" class="category-btn btn btn-success mb-3"> Shop By Category</button>
+    <div class="cat__menu">
+        <nav id="mobile-menu" style="display: block;">
+            <ul id="maincategories-list">
+                {% for maincategory in maincategories %}
+                <li class="maincategory-item">
+                    <a href="{% url 'maincategory_list' maincategory.name %}">
+                        <h5>{{ maincategory.name }}</h5>
+                    </a>
+                    <ul class="mega-menu">
+                        {% for category in maincategory.category_set.all %}
+                        <li class="category-item">
+                            <a href="{% url 'product_list' maincategory.name category.name %}">
+                                <p class="category-p">{{ category.name }}</p>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+
+</body>
+
+</html>

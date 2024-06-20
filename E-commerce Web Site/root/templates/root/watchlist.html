@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <h2>Watchlist</h2>
+    {% if watchlist_items %}
+        <ul>
+            {% for item in watchlist_items %}
+                <li>
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px;">
+                    {{ item.product.name }} - ${{ item.product.price }}
+                    <a href="{% url 'remove_from_watchlist' item.product.id %}" class="btn btn-danger">Remove</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Your watchlist is empty.</p>
+    {% endif %}
+{% endblock %}

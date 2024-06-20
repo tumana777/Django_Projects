@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from .models import MainCategory, Category, Product, Order, OrderItem
+from .models import MainCategory, Category, Product, Order, OrderItem, Watchlist
 from django.views.generic import ListView
 from django.utils import timezone
 from cart.cart import Cart
@@ -21,42 +21,58 @@ def maincategory_product_list(request, maincategory_name):
     maincategory = MainCategory.objects.get(name=maincategory_name)
     categories = maincategory.category_set.all()
     products = Product.objects.filter(category__maincategory__name=maincategory_name)
+    
+    watchlist = []
+    if request.user.is_authenticated:
+        watchlist = Watchlist.objects.filter(user=request.user).values_list('product_id', flat=True)
      
     context = {
         "maincategory": maincategory,
         "categories": categories,
-        "products": products
+        "products": products,
+        "watchlist": watchlist
     }
     
     return render(request, "root/maincategories.html", context)
 
 def product_list(request, maincategory_name, category_name):
-    maincategory = MainCategory.objects.get(name=maincategory_name)
-    category = Category.objects.get(name=category_name)
+    maincategory = get_object_or_404(MainCategory, name=maincategory_name)
+    category = get_object_or_404(Category, name=category_name)
+    products = category.product_set.all()
+    
+    watchlist = []
+    if request.user.is_authenticated:
+        watchlist = Watchlist.objects.filter(user=request.user).values_list('product_id', flat=True)
     
     context = {
         "maincategory": maincategory,
-        "category": category
+        "category": category,
+        "products": products,
+        "watchlist": watchlist,
     }
     
     return render(request, "root/products.html", context)
 
 def product_detail(request, maincategory_name, category_name, product_pk):
-    product = Product.objects.get(pk=product_pk)
+    product = get_object_or_404(Product, pk=product_pk)
+    is_in_watchlist = False
+    if request.user.is_authenticated:
+        is_in_watchlist = Watchlist.objects.filter(user=request.user, product=product).exists()
     context = {
         "maincategory": MainCategory.objects.get(name=maincategory_name),
         "category": Category.objects.get(name=category_name),
-        "product": product
+        "product": product,
+        "is_in_watchlist": is_in_watchlist
     }
     return render(request, "root/product_detail.html", context)
 
-@login_required
+@login_required(login_url="login")
 def cart(request):
     previous_url = request.META.get('HTTP_REFERER')
     go_back_url = previous_url if previous_url else reverse('index')
     return render(request, "root/cart.html", {'go_back_url': go_back_url})
 
-@login_required(login_url="/users/login")
+@login_required(login_url="login")
 def cart_add(request, id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=id)
@@ -67,37 +83,34 @@ def cart_add(request, id):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
-@login_required(login_url="/users/login")
+@login_required(login_url="login")
 def item_clear(request, id):
     cart = Cart(request)
     product = Product.objects.get(id=id)
     cart.remove(product)
     return redirect("cart_detail")
 
-
-@login_required(login_url="/users/login")
+@login_required(login_url="login")
 def item_increment(request, id):
     cart = Cart(request)
     product = Product.objects.get(id=id)
     cart.add(product=product)
     return redirect("cart_detail")
 
-
-@login_required(login_url="/users/login")
+@login_required(login_url="login")
 def item_decrement(request, id):
     cart = Cart(request)
     product = Product.objects.get(id=id)
     cart.decrement(product=product)
     return redirect("cart_detail")
 
-
-@login_required(login_url="/users/login")
+@login_required(login_url="login")
 def cart_clear(request):
     cart = Cart(request)
     cart.clear()
     return redirect("cart_detail")
 
-@login_required
+@login_required(login_url="login")
 def checkout(request):
     user = request.user
     cart = Cart(request)
@@ -127,3 +140,33 @@ def checkout(request):
 def order_list(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'root/order_list.html', {'orders': orders})
+
+@login_required(login_url="login")
+def add_to_watchlist(request, product_pk):
+    product = get_object_or_404(Product, pk=product_pk)
+    Watchlist.objects.get_or_create(user=request.user, product=product)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required(login_url="login")
+def remove_from_watchlist(request, product_pk):
+    product = get_object_or_404(Product, pk=product_pk)
+    watchlist_item = get_object_or_404(Watchlist, user=request.user, product=product)
+    watchlist_item.delete()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required(login_url="login")
+def watchlist(request):
+    watchlist_items = Watchlist.objects.filter(user=request.user)
+    return render(request, "root/watchlist.html", {"watchlist_items": watchlist_items})
+
+@login_required(login_url="login")
+def api_add_to_watchlist(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    Watchlist.objects.get_or_create(user=request.user, product=product)
+    return JsonResponse({'status': 'added'})
+
+@login_required(login_url="login")
+def api_remove_from_watchlist(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    Watchlist.objects.filter(user=request.user, product=product).delete()
+    return JsonResponse({'status': 'removed'})

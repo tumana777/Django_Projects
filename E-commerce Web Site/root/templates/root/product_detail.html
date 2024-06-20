@@ -3,8 +3,12 @@
 {% block body %}
     <h1>Product: {{product.name}}</h1>
     <h6>Quantity: {{product.quantity}}</h6>
-    <a href="{% url 'cart_add' product.id %}">Add To Cart</a>
-    <a href="">Add To Watchlist</a>
+    <a href="{% url 'cart_add' product.pk %}">Add To Cart</a>
+    {% if is_in_watchlist %}
+        <a href="{% url 'remove_from_watchlist' product.pk %}">Remove From Watchlist</a>
+    {% else %}
+        <a href="{% url 'add_to_watchlist' product.pk %}">Add To Watchlist</a>
+    {% endif %}
     {% if messages %}
         <div class="messages">
             {% for message in messages %}

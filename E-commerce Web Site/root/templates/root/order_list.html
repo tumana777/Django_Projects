@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load cart_tag %}
 
 {% block title %}My Orders{% endblock %}
 
@@ -20,13 +22,16 @@
                     <div class="card mb-3 mt-4" style="width: 100%">
                         <div class="row g-0">
                             <div class="col-md-4">
-                                <img src="" class="img-fluid rounded-start" style="height: 150px;" alt="...">
+                                {% if item.product.image %}
+                                    <img src="{{item.product.image.url}}" class="img-fluid rounded-start" style="height: 150px;" alt="...">
+                                {% endif %}
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ item.product.name }}</h5>
                                     <p class="card-text">Price: ${{ item.price }}</p>
                                     <p class="card-text">Qty: {{ item.quantity }}</p>
+                                    <p class="card-text">Total Price: ${{ item.price|multiply:item.quantity }}</p>
                                 </div>
                             </div>
                         </div>

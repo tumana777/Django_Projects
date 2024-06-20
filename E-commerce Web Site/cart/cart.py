@@ -27,6 +27,7 @@ class Cart(object):
                 'name': item.product.name,
                 'quantity': item.quantity,
                 'price': str(item.price),
+                'image_url': item.product.image.url if item.product.image else ''  # Ensure correct key
             }
         self.save()
 
@@ -42,6 +43,7 @@ class Cart(object):
                 'name': product.name,
                 'quantity': 1,
                 'price': str(product.price),
+                'image_url': product.image.url if product.image else ''  # Ensure correct key
             }
         else:
             for key, value in self.cart.items():
@@ -57,6 +59,7 @@ class Cart(object):
                     'name': product.name,
                     'quantity': 1,
                     'price': str(product.price),
+                    'image_url': product.image.url if product.image else ''  # Ensure correct key
                 }
         self.save()
         if self.user:
@@ -65,10 +68,7 @@ class Cart(object):
     def save_to_db(self, product, quantity):
         item, created = CartItem.objects.get_or_create(user=self.user, product=product)
         if not created:
-            if item.quantity < product.quantity:
-                item.quantity += quantity
-        else:
-            item.quantity = quantity
+            item.quantity += quantity
         item.price = product.price
         item.save()
 
@@ -99,6 +99,8 @@ class Cart(object):
                     else:
                         item.delete()
                 break
+            else:
+                print("Something Wrong")
 
     def clear(self):
         self.session[settings.CART_SESSION_ID] = {}

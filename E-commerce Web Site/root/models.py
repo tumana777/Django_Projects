@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from PIL import Image
 
 class MainCategory(models.Model):
     name = models.CharField(max_length=50)
@@ -29,6 +30,7 @@ class Product(models.Model):
     quantity = models.IntegerField()
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    image = models.ImageField(default="product-pictures/default.jpg", upload_to='product-pictures', null=True, blank=True)
     
     class Meta:
         db_table = "product"
@@ -36,6 +38,16 @@ class Product(models.Model):
     
     def __str__(self):
         return self.name
+    
+    def save(self):
+        super().save()
+        
+        img = Image.open(self.image.path)
+        
+        if img.height > 200 or img.width > 200:
+            output_size = (200, 200)
+            img.thumbnail(output_size)
+            img.save(self.image.path)
     
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

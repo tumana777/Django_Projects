@@ -20,10 +20,12 @@ class IndexView(ListView):
 def maincategory_product_list(request, maincategory_name):
     maincategory = MainCategory.objects.get(name=maincategory_name)
     categories = maincategory.category_set.all()
-    
+    products = Product.objects.filter(category__maincategory__name=maincategory_name)
+     
     context = {
         "maincategory": maincategory,
-        "categories": categories
+        "categories": categories,
+        "products": products
     }
     
     return render(request, "root/maincategories.html", context)

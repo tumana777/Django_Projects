@@ -5,20 +5,24 @@
 {% block body %}
     <div class="row">
         <div class="col-3">
-            <h4>Search by categories:</h4>
+            <h3>Categories</h3>
             {% for category in categories %}
                 <a style="text-decoration: none;" href="{% url 'product_list' maincategory.name category.name %}"><h6>{{category.name}}</h6></a>
             {% endfor %}
         </div>
         <div class="col-9">
             <div class="row">
-                <h5 class="mb-3">Total Products: {{ category.product_set.all|length }}</h5>
+                <h5 class="mb-3">Total Products: {{products|length}}</h5>
                 {% for category in categories %}
                     {% for product in category.product_set.all %}
                             <div class="col col-md-4 mb-3">
                                 <div class="card" style="width: 16rem;">
                                     <a href="{% url 'product_detail' maincategory.name category.name product.pk %}" style="text-decoration: none;">
-                                        <img src="https://buffer.com/library/content/images/size/w1200/2023/10/free-images.jpg" class="card-img-top" alt="...">
+                                        {% if product.image %}
+                                            <div style="height: 254px">
+                                                <img src="{{product.image.url}}" class="card-img-top" alt="{{product.name}}">
+                                            </div>
+                                        {% endif %}
                                         <div class="card-body">
                                             <h6 style="height: 70px; color:rgb(44, 43, 43)" class="card-title">{{ product.name }}</h6>
                                             <p style="height: 50px; color:rgb(65, 64, 64)" class="card-text mb-2">{{ product.description|slice:":40" }}...</p>

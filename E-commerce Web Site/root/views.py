@@ -123,7 +123,7 @@ def checkout(request):
 
     return redirect('order_list')
 
-@login_required
+@login_required(login_url="login")
 def order_list(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'root/order_list.html', {'orders': orders})

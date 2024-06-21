@@ -12,10 +12,14 @@ from cart.models import CartItem
 from django.contrib import messages
 
 
-class IndexView(ListView):
-    model = MainCategory
-    template_name = "root/index.html"
-    context_object_name = "maincategories"
+def index(request):
+    maincategories = MainCategory.objects.all()
+    products = Product.objects.all()
+    context = {
+        "maincategories": maincategories,
+        "products": products
+    }
+    return render(request, "root/index.html", context)
 
 def maincategory_product_list(request, maincategory_name):
     maincategory = MainCategory.objects.get(name=maincategory_name)

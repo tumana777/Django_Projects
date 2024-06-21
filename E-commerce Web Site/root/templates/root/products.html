@@ -4,6 +4,13 @@
 {% block title %}{{category.name}}{% endblock %}
 
 {% block body %}
+    <div class="categories" style="margin-top: -10px;">
+        <p >
+            <a style="color: rgb(90, 90, 90)" href="{% url 'index' %}">Technic</a> >
+            <a style="color: rgb(90, 90, 90)" href="{% url 'maincategory_list' maincategory.name %}">{{maincategory.name}}</a> > 
+            <a style="color: rgb(90, 90, 90)">{{category.name}}</a>
+        </p>
+    </div>
     <div class="row">
         <div class="col-3">
             <h3>Categories</h3>
@@ -19,8 +26,8 @@
                         <div class="card" style="width: 16rem;">
                             <a href="{% url 'product_detail' maincategory.name category.name product.pk %}" style="text-decoration: none;">
                                 {% if product.image %}
-                                    <div style="height: 254px" class="justify-content-center">
-                                        <img src="{{product.image.url}}" class="card-img-top" style="width: auto;" alt="{{product.name}}">
+                                    <div style="height: 254px; text-align: center">
+                                        <img src="{{product.image.url}}" class="card-img-top" style="width: 90%; max-height: 95%" alt="{{product.name}}">
                                     </div>
                                 {% endif %}
                                 <div class="card-body">

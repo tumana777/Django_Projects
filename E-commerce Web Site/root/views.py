@@ -1,8 +1,9 @@
+from typing import Any
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from django.template.loader import render_to_string
 from .models import MainCategory, Category, Product, Order, OrderItem, Watchlist
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from django.utils import timezone
 from cart.cart import Cart
 from django.urls import reverse
@@ -10,16 +11,35 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from cart.models import CartItem
 from django.contrib import messages
+from django.db.models import Q
+from django.core.paginator import Paginator
+
+from django.db.models import Q
+
+class IndexView(ListView):
+    model = Product
+    template_name = 'root/index.html'
+    context_object_name = 'products'
+    paginate_by = 4
+
+    def get_queryset(self):
+        query = self.request.GET.get("query")
+        if query:
+            return Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
+        return Product.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = self.request.GET.get("query")
+        if query:
+            context['total_products'] = Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query)).count()
+        else:
+            context['total_products'] = Product.objects.count()
+        context['maincategories'] = MainCategory.objects.all()
+        context['query'] = query or ""
+        return context
 
 
-def index(request):
-    maincategories = MainCategory.objects.all()
-    products = Product.objects.all()
-    context = {
-        "maincategories": maincategories,
-        "products": products
-    }
-    return render(request, "root/index.html", context)
 
 def maincategory_product_list(request, maincategory_name):
     maincategory = MainCategory.objects.get(name=maincategory_name)

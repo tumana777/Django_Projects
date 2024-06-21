@@ -29,8 +29,8 @@
                     </div>
                     <!-- Navbar Right Side -->
                     <div class="navbar-nav">
-                        <form class="d-flex" role="search">
-                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <form class="d-flex" role="search" action="/">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="query">
                             <button class="btn btn-success" type="submit">Search</button>
                         </form>
                         {% if user.is_authenticated %}
@@ -44,6 +44,7 @@
                                         <li><a class="dropdown-item" href="{% url 'order_list' %}">My Orders</a></li>
                                         <li><a class="dropdown-item" href="{% url 'watchlist' %}">My Watchlist</a></li>
                                         <li><a class="dropdown-item" href="{% url 'my_products' %}">My Products</a></li>
+                                        <li><a class="dropdown-item" href="">My Profile</a></li>
                                     </ul>
                                 </li>
                             </ul>

@@ -5,7 +5,8 @@ from .views import (IndexView, maincategory_product_list,
                     item_decrement, cart_clear, checkout, 
                     order_list, watchlist, add_to_watchlist,
                     remove_from_watchlist, api_add_to_watchlist,
-                    api_remove_from_watchlist
+                    api_remove_from_watchlist, my_products, 
+                    purchase, order_confirmation
                     )
 
 urlpatterns = [
@@ -20,11 +21,13 @@ urlpatterns = [
     path('cart/item_decrement/<int:id>/', item_decrement, name='item_decrement'),
     path('cart/cart_clear/', cart_clear, name='cart_clear'),
     path('checkout/', checkout, name='checkout'),
-    path('orders/', order_list, name='order_list'),
+    path('purchase/<int:product_pk>/', purchase, name='purchase'),
+    path('order-confirmation/<int:order_id>/', order_confirmation, name='order_confirmation'),
     path('orders/', order_list, name='order_list'),
     path('watchlist/', watchlist, name='watchlist'),
     path('add_to_watchlist/<int:product_pk>/', add_to_watchlist, name='add_to_watchlist'),
     path('remove_from_watchlist/<int:product_pk>/', remove_from_watchlist, name='remove_from_watchlist'),
     path('watchlist/api/add/<int:product_id>/', api_add_to_watchlist, name='api_add_to_watchlist'),
     path('watchlist/api/remove/<int:product_id>/', api_remove_from_watchlist, name='api_remove_from_watchlist'),
+    path('my_products/', my_products, name='my_products'),
 ]

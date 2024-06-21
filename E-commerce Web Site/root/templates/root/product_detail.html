@@ -9,6 +9,7 @@
     {% else %}
         <a href="{% url 'add_to_watchlist' product.pk %}">Add To Watchlist</a>
     {% endif %}
+    <a href="{% url 'purchase' product.pk %}">Buy It Now</a>
     {% if messages %}
         <div class="messages">
             {% for message in messages %}

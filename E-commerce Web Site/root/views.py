@@ -136,6 +136,32 @@ def checkout(request):
 
     return redirect('order_list')
 
+@login_required(login_url='login')
+def purchase(request, product_pk):
+    product = get_object_or_404(Product, pk=product_pk)
+    quantity = 1
+    
+    if product.quantity >= quantity:
+        total_price = product.price
+        order = Order.objects.create(total_price=total_price, user=request.user)
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            quantity=quantity,
+            price=product.price
+        )
+        product.quantity -= quantity
+        product.save()
+        return redirect('order_confirmation', order_id=order.id)
+    else:
+        messages.error(request, "Sorry, this product is out of stock.")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required
+def order_confirmation(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, 'root/order_confirmation.html', {'order': order})
+
 @login_required(login_url="login")
 def order_list(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
@@ -170,3 +196,8 @@ def api_remove_from_watchlist(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     Watchlist.objects.filter(user=request.user, product=product).delete()
     return JsonResponse({'status': 'removed'})
+
+@login_required(login_url='login')
+def my_products(request):
+    products = Product.objects.filter(owner=request.user)
+    return render(request, "root/my_products.html", {"products": products})

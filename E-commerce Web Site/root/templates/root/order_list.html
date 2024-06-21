@@ -7,9 +7,9 @@
 {% block body %}
 <div class="row">
     <div class="col-2">
-        <a style="text-decoration: none;" href=""><h5 class="mb-3">Purchases</h5></a>
-        <a style="text-decoration: none;" href=""><h5 class="mb-3">Watchlist</h5></a>
-        <a style="text-decoration: none;" href=""><h5 class="mb-3">Account</h5></a>
+        <a style="text-decoration: none;" href="{% url 'order_list' %}"><h5 class="mb-3">Purchases</h5></a>
+        <a style="text-decoration: none;" href="{% url 'watchlist' %}"><h5 class="mb-3">Watchlist</h5></a>
+        <a style="text-decoration: none;" href="{% url 'my_products' %}"><h5 class="mb-3">My Products</h5></a>
     </div>
     <div class="col-8">
         <h5>My Orders</h5>

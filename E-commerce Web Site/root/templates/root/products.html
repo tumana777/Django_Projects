@@ -19,8 +19,8 @@
                         <div class="card" style="width: 16rem;">
                             <a href="{% url 'product_detail' maincategory.name category.name product.pk %}" style="text-decoration: none;">
                                 {% if product.image %}
-                                    <div style="height: 254px">
-                                        <img src="{{product.image.url}}" class="card-img-top" alt="{{product.name}}">
+                                    <div style="height: 254px" class="justify-content-center">
+                                        <img src="{{product.image.url}}" class="card-img-top" style="width: auto;" alt="{{product.name}}">
                                     </div>
                                 {% endif %}
                                 <div class="card-body">

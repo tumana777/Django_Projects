@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Products{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-2">
+        <a style="text-decoration: none;" href="{% url 'order_list' %}"><h5 class="mb-3">Purchases</h5></a>
+        <a style="text-decoration: none;" href="{% url 'watchlist' %}"><h5 class="mb-3">Watchlist</h5></a>
+        <a style="text-decoration: none;" href="{% url 'my_products' %}"><h5 class="mb-3">My Products</h5></a>
+    </div>
+    <div class="col-10">
+        <h5>My Products</h5>
+        <hr>
+        {% for product in products %}
+            <div class="card mb-3 mt-4" style="width: 100%">
+                <div class="row g-0">
+                    <div class="col-md-3">
+                        {% if product.image %}
+                            <img src="{{product.image.url}}" class="img-fluid rounded-start" style="height: 150px;" alt="...">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">Price: ${{ product.price }}</p>
+                            <p class="card-text">Qty: {{ product.quantity }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 d-flex flex-column justify-content-evenly align-items-center">
+                        <a href="#" class="btn btn-outline-info w-50">Update</a>
+                        <a href="#" class="btn btn-outline-danger w-50">Delete</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

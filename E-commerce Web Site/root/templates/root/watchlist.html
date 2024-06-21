@@ -1,18 +1,44 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Watchlist{% endblock %}
 
 {% block body %}
-    <h2>Watchlist</h2>
-    {% if watchlist_items %}
-        <ul>
+<div class="row">
+    <div class="col-2">
+        <a style="text-decoration: none;" href="{% url 'order_list' %}"><h5 class="mb-3">Purchases</h5></a>
+        <a style="text-decoration: none;" href="{% url 'watchlist' %}"><h5 class="mb-3">Watchlist</h5></a>
+        <a style="text-decoration: none;" href="{% url 'my_products' %}"><h5 class="mb-3">My Products</h5></a>
+    </div>
+    <div class="col-10">
+        <h5>Watchlist</h5>
+        <hr>
+        {% if watchlist_items %}
             {% for item in watchlist_items %}
-                <li>
-                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px;">
-                    {{ item.product.name }} - ${{ item.product.price }}
-                    <a href="{% url 'remove_from_watchlist' item.product.id %}" class="btn btn-danger">Remove</a>
-                </li>
+                <div class="card mb-3 mt-4" style="width: 100%">
+                    <div class="row g-0">
+                        <div class="col-md-3">
+                            {% if item.product.image %}
+                                <img src="{{item.product.image.url}}" class="img-fluid rounded-start" style="height: 150px;" alt="...">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ item.product.name }}</h5>
+                                <p class="card-text">Price: ${{ item.product.price }}</p>
+                                <p class="card-text">Qty: {{ item.product.quantity }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex flex-column justify-content-evenly align-items-center">
+                            <a href="" class="btn btn-outline-success w-50">Buy It Now</a>
+                            <a href="{% url 'remove_from_watchlist' item.product.id %}" class="btn btn-outline-danger w-50">Remove</a>
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
-        </ul>
-    {% else %}
-        <p>Your watchlist is empty.</p>
-    {% endif %}
+        {% else %}
+            <p>Your watchlist is empty.</p>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

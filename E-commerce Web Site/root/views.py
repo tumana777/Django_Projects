@@ -1,4 +1,4 @@
-from typing import Any
+from django.db.models.query import QuerySet
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpRequest
 from django.template.loader import render_to_string
@@ -12,9 +12,8 @@ from django.contrib.auth.decorators import login_required
 from cart.models import CartItem
 from django.contrib import messages
 from django.db.models import Q
-from django.core.paginator import Paginator
-
-from django.db.models import Q
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 
 class IndexView(ListView):
     model = Product
@@ -221,7 +220,22 @@ def api_remove_from_watchlist(request, product_id):
     Watchlist.objects.filter(user=request.user, product=product).delete()
     return JsonResponse({'status': 'removed'})
 
-@login_required(login_url='login')
-def my_products(request):
-    products = Product.objects.filter(owner=request.user)
-    return render(request, "root/my_products.html", {"products": products})
+class MyProductsListView(LoginRequiredMixin, ListView):
+    model = Product
+    template_name = "root/my_products.html"
+    context_object_name = "products"
+    login_url = 'login'
+    
+    def get_queryset(self):
+        return Product.objects.filter(owner=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["total_products"] = self.get_queryset().count()
+        return context
+
+def seller_products(request, seller_name):
+    seller = User.objects.get(username=seller_name)
+    products = Product.objects.filter(owner=seller)
+    total_products = len(products)
+    return render(request, "root/seller_products.html", {"seller": seller,"products": products, "total_products": total_products})

@@ -14,6 +14,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from users.models import Profile
 
 class IndexView(ListView):
     model = Product
@@ -227,7 +228,7 @@ class MyProductsListView(LoginRequiredMixin, ListView):
     login_url = 'login'
     
     def get_queryset(self):
-        return Product.objects.filter(owner=self.request.user)
+        return Product.objects.filter(seller=self.request.user)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -236,6 +237,6 @@ class MyProductsListView(LoginRequiredMixin, ListView):
 
 def seller_products(request, seller_name):
     seller = User.objects.get(username=seller_name)
-    products = Product.objects.filter(owner=seller)
+    products = Product.objects.filter(seller=seller)
     total_products = len(products)
     return render(request, "root/seller_products.html", {"seller": seller,"products": products, "total_products": total_products})

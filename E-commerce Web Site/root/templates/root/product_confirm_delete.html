@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block body %}
+    <div class="content-section">
+        <form method="post">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border_bottom mb-4">Delete Product</legend>
+                <p>Are you sure you want to delete "{{ product.name }}"?</p>
+            </fieldset>
+                {{ form|crispy }}
+            <div class="form-group mb-4">
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                <a href="{% url 'my_products' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

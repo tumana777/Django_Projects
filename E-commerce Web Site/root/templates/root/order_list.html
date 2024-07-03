@@ -22,9 +22,11 @@
                     <div class="card mb-3 mt-4" style="width: 100%">
                         <div class="row g-0">
                             <div class="col-md-4">
-                                {% if item.product.image %}
-                                    <img src="{{item.product.image.url}}" class="img-fluid rounded-start" style="height: 150px;" alt="...">
-                                {% endif %}
+                                <a href="{% url 'product_detail' item.product.category.maincategory.name item.product.category.name item.product.pk %}">
+                                    {% if item.product.image %}
+                                        <img src="{{item.product.image.url}}" class="img-fluid rounded-start" style="height: 150px;" alt="...">
+                                    {% endif %}
+                                </a>
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">

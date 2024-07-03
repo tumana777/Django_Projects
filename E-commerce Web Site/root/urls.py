@@ -6,7 +6,8 @@ from .views import (IndexView, maincategory_product_list,
                     order_list, watchlist, add_to_watchlist,
                     remove_from_watchlist, api_add_to_watchlist,
                     api_remove_from_watchlist, MyProductsListView, 
-                    purchase, order_confirmation, seller_products
+                    purchase, order_confirmation, seller_products,
+                    ProductUpdateView, ProductDeleteView
                     )
 
 urlpatterns = [
@@ -31,4 +32,6 @@ urlpatterns = [
     path('watchlist/api/remove/<int:product_id>/', api_remove_from_watchlist, name='api_remove_from_watchlist'),
     path('my_products/', MyProductsListView.as_view(), name='my_products'),
     path('seller/<str:seller_name>/', seller_products, name='seller_products'),
+    path('product/<int:pk>/delete/', ProductDeleteView.as_view(), name='delete_product'),
+    path('product/<int:pk>/update/', ProductUpdateView.as_view(), name='update_product'),
 ]

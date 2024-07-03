@@ -83,6 +83,48 @@
         <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages}}">Last</a>
         {% endif %}
     {% endif %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.watchlist-toggle').forEach(function(element) {
+                element.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const productId = this.getAttribute('data-product-id');
+                    const icon = this.querySelector('i');
+                    if (icon.classList.contains('fa-solid')) {
+                        // Remove from watchlist
+                        fetch(`/watchlist/api/remove/${productId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({product_id: productId})
+                        }).then(response => response.json()).then(data => {
+                            if (data.status === 'removed') {
+                                icon.classList.remove('fa-solid', 'text-danger');
+                                icon.classList.add('fa-regular');
+                            }
+                        });
+                    } else {
+                        // Add to watchlist
+                        fetch(`/watchlist/api/add/${productId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({product_id: productId})
+                        }).then(response => response.json()).then(data => {
+                            if (data.status === 'added') {
+                                icon.classList.remove('fa-regular');
+                                icon.classList.add('fa-solid', 'text-danger');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+        </script>
 {% endblock %}
 
 </body>

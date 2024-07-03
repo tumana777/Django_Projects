@@ -3,16 +3,16 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpRequest
 from django.template.loader import render_to_string
 from .models import MainCategory, Category, Product, Order, OrderItem, Watchlist
-from django.views.generic import ListView, TemplateView
+from django.views.generic import View, ListView, TemplateView, UpdateView, DeleteView
 from django.utils import timezone
 from cart.cart import Cart
-from django.urls import reverse
-from django.http import HttpResponseRedirect
+from django.urls import reverse, reverse_lazy
+from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from cart.models import CartItem
 from django.contrib import messages
 from django.db.models import Q
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from users.models import Profile
 
@@ -20,7 +20,7 @@ class IndexView(ListView):
     model = Product
     template_name = 'root/index.html'
     context_object_name = 'products'
-    paginate_by = 4
+    paginate_by = 10
 
     def get_queryset(self):
         query = self.request.GET.get("query")
@@ -240,3 +240,26 @@ def seller_products(request, seller_name):
     products = Product.objects.filter(seller=seller)
     total_products = len(products)
     return render(request, "root/seller_products.html", {"seller": seller,"products": products, "total_products": total_products})
+
+class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Product
+    fields = ["name", "description", "price", "quantity", "image"]
+    template_name = "root/product_update.html"
+    success_url = reverse_lazy('my_products')
+    
+    def test_func(self):
+        product = self.get_object()
+        if self.request.user == product.seller:
+            return True
+        return False
+
+class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Product
+    login_url = 'login'
+    success_url = reverse_lazy('my_products')
+    
+    def test_func(self):
+        product = self.get_object()
+        if self.request.user == product.seller:
+            return True
+        return False

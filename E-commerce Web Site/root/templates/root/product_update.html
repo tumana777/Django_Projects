@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %} Update Product {% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block body %}
+    <div class="content-section">
+        <form method="post">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border_bottom mb-4">Update Product</legend>
+            </fieldset>
+                {{ form|crispy }}
+            <div class="form-group mb-4">
+                <button type="submit" class="btn btn-outline-info">Update Product</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

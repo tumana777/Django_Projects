@@ -7,14 +7,13 @@ from django.views.generic import View, ListView, TemplateView, UpdateView, Delet
 from django.utils import timezone
 from cart.cart import Cart
 from django.urls import reverse, reverse_lazy
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from cart.models import CartItem
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from users.models import Profile
 
 class IndexView(ListView):
     model = Product
@@ -24,19 +23,39 @@ class IndexView(ListView):
 
     def get_queryset(self):
         query = self.request.GET.get("query")
+        min_price = self.request.GET.get("min_price")
+        max_price = self.request.GET.get("max_price")
+        
+        queryset = Product.objects.all()
+        
         if query:
-            return Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
-        return Product.objects.all()
+            queryset = queryset.filter(Q(name__icontains=query) | Q(description__icontains=query))
+        if min_price:
+            queryset = queryset.filter(Q(price__gte=min_price))
+        if max_price:
+            queryset = queryset.filter(Q(price__lte=max_price))
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         query = self.request.GET.get("query")
+        min_price = self.request.GET.get("min_price")
+        max_price = self.request.GET.get("max_price")
+
         if query:
             context['total_products'] = Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query)).count()
+        elif min_price:
+            context['total_products'] = Product.objects.filter(Q(price__gte=min_price)).count()
+        elif max_price:
+            context['total_products'] = Product.objects.filter(Q(price__lte=max_price)).count()
         else:
             context['total_products'] = Product.objects.count()
+
         context['maincategories'] = MainCategory.objects.all()
         context['query'] = query or ""
+        context['min_price'] = min_price or ""
+        context['max_price'] = max_price or ""
+        
         return context
 
 
